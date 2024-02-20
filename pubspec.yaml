@@ -1,0 +1,28 @@
+name: testsendbird
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  sendbird_sdk: ^3.2.19
+  get: ^4.6.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  husky: ^0.1.7
+  lint_staged: ^0.5.1
+  commitlint_cli: ^0.7.1
+
+lint_staged:
+  'lib/**.dart': dart format -l 120 && dart analyze --fatal-infos --fatal-warnings
+
+flutter:
+  uses-material-design: true
