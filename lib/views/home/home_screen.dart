@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:testsendbird/sendbird_service.dart';
-import 'package:testsendbird/utils/app_prefs.dart';
+import 'package:testsendbird/services/sendbird_service.dart';
+import 'package:testsendbird/utils/theme.dart';
 import 'package:testsendbird/views/home/home_controller.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -29,121 +29,75 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          Obx(() {
-            return Switch.adaptive(
-                value: (_controller.currentTheme.value == ThemeMode.dark),
-                onChanged: (v) {
-                  _controller.switchTheme();
-                  Get.changeThemeMode(_controller.currentTheme.value);
-                });
-          }),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(30),
-              child: Text('TestSendbird!'),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: SendbirdService().isUseNewOpenChannel() ? Colors.green[300] : Colors.green[900],
-                    padding: const EdgeInsets.all(10),
+    return GestureDetector(
+      onTap: () => Get.focusScope?.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            Obx(() {
+              return Padding(
+                padding: const EdgeInsets.only(top: 20, right: 20),
+                child: Switch.adaptive(
+                    value: (_controller.currentTheme.value == ThemeMode.dark),
+                    onChanged: (v) {
+                      _controller.switchTheme();
+                      Get.changeThemeMode(_controller.currentTheme.value);
+                    }),
+              );
+            }),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(30),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const Text(
+                'Hello,',
+                style: TextStyle(fontSize: 24),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: TextField(
+                  controller: _controller.controller,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 34),
+                  autofillHints: const ['enter username'],
+                  decoration: InputDecoration(
+                    hintText: 'username',
+                    hintStyle: TextStyle(
+                      color: CustomTheme.typingDisabled,
+                    ),
+                    suffixIcon: _controller.controller.text.isNotEmpty
+                        ? IconButton(
+                            onPressed: () {
+                              _controller.controller.clear();
+                            },
+                            icon: const Icon(Icons.clear),
+                          )
+                        : null,
                   ),
-                  onPressed: () async {
-                    debugPrint('HOME_testingOpenChannelUrl: $testingOpenChannelUrl');
-                    final newOpenChannelUrl = await SendbirdService().createOpenChannel();
-                    debugPrint('HOME_testOpenChannelUrl: $newOpenChannelUrl');
-                    setState(() {
-                      testingOpenChannelUrl = newOpenChannelUrl ?? '';
-                    });
-                  },
-                  child: Text(testingOpenChannelUrl.isNotEmpty ? 'Disable Testing' : 'Enable Testing',
-                      style: const TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-            SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-                child: Column(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Align(alignment: Alignment.centerLeft, child: Text('Created Open Channel Url:')),
-                        Text(AppPrefs().getNewOpenChannel() ?? ''),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Base Open Channel Url:'),
-                        Text(SendbirdService.openChannelUrl),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Used Open Channel Url:'),
-                        SendbirdService().isUseNewOpenChannel()
-                            ? Text(AppPrefs().getNewOpenChannel() ?? '')
-                            : Text(SendbirdService.openChannelUrl),
-                      ],
-                    ),
-                  ],
+                  onChanged: (s) => _controller.setUsername(s),
                 ),
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.all(10),
-                  ),
-                  onPressed: () async {
-                    await SendbirdService.connectToServer(userId: 'danoetz').then((user) {
-                      if (user != null) {
-                        Get.toNamed('/Chat', parameters: {'channel_url': SendbirdService.getUsedOpenChannel()});
-                      } else {
-                        // SendbirdService.showToast('Something went wrong! Try again in a few minutes...');
-                      }
-                    });
-                  },
-                  child: const Text('Chat as Danoetz', style: TextStyle(color: Colors.white)),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: CustomTheme.lightThemeColor,
+                  padding: const EdgeInsets.all(10),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.all(10),
-                  ),
-                  onPressed: () async {
-                    await SendbirdService.connectToServer(userId: 'test').then((user) {
-                      if (user != null) {
-                        Get.toNamed('/Chat', parameters: {'channel_url': SendbirdService.getUsedOpenChannel()});
-                      } else {
-                        // SendbirdService.showToast('Something went wrong! Try again in a few minutes...');
-                      }
-                    });
-                  },
-                  child: const Text('Chat as Test', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          ],
+                onPressed: () async {
+                  await SendbirdService.connectToServer(userId: _controller.controller.text).then((user) {
+                    if (user != null) {
+                      Get.toNamed('/Chat', parameters: {'channel_url': SendbirdService.openChannelUrl});
+                    } else {
+                      SendbirdService.showToast('Something went wrong! Try again in a few minutes...');
+                    }
+                  });
+                },
+                child: const Text('Enter Chat Room', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
         ),
       ),
     );
