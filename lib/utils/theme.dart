@@ -65,7 +65,7 @@ class CustomTheme {
   // colors
   static Color lightThemeColor = const Color(0xFF00CC95);
   static Color white = Colors.white;
-  static Color darkThemeColor = const Color(0xFFFF006A);
+  static Color darkThemeColor = const Color(0xFFFFFFFF);
 
   static Color typingColor = const Color(0xFFFCFCFC);
   static Color typingDisabled = const Color(0xFF666666);

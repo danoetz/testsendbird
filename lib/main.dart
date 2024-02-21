@@ -45,7 +45,7 @@ class MainApp extends StatelessWidget {
       title: 'TestSendbird',
       theme: CustomTheme.lightTheme,
       darkTheme: CustomTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       initialRoute: '/',
       getPages: routes,
     );
