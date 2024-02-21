@@ -1,17 +1,21 @@
 name: testsendbird
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: '>=3.2.0 <4.0.0'
+  sdk: ">=3.2.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  sendbird_sdk: ^3.2.19
+  fluttertoast: ^8.2.4
   get: ^4.6.6
+  scrollable_positioned_list: ^0.3.8
+  sendbird_chat_sdk: ^4.2.2
+  sendbird_chat_widget: ^1.0.4
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
@@ -22,7 +26,7 @@ dev_dependencies:
   commitlint_cli: ^0.7.1
 
 lint_staged:
-  'lib/**.dart': dart format -l 120 && dart analyze --fatal-infos --fatal-warnings
+  "lib/**.dart": dart format -l 120 && dart analyze --fatal-infos --fatal-warnings
 
 flutter:
   uses-material-design: true
