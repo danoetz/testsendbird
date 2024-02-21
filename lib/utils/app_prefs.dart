@@ -18,19 +18,11 @@ class AppPrefs {
     prefs = await SharedPreferences.getInstance();
   }
 
-  Future<bool> setNewOpenChannel(String value) async {
-    return await prefs.setString(prefNewOpenChannelUrl, value);
-  }
-
-  String? getNewOpenChannel() {
-    return prefs.getString(prefNewOpenChannelUrl);
-  }
-
   Future<bool> setDarkMode(bool value) async {
     return await prefs.setBool(prefDarkMode, value);
   }
 
-  bool isDarkMode() {
-    return prefs.getBool(prefDarkMode) ?? false;
+  bool? isDarkMode() {
+    return prefs.getBool(prefDarkMode);
   }
 }

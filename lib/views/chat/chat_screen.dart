@@ -34,7 +34,6 @@ class OpenChannelPageState extends State<OpenChannelPage> {
     super.initState();
     SendbirdChat.addChannelHandler('OpenChannel', MyOpenChannelHandler(this));
     SendbirdChat.addConnectionHandler('OpenChannel', MyConnectionHandler(this));
-    debugPrint('CHANNEL_URL: $channelUrl');
 
     OpenChannel.getChannel(channelUrl).then((openChannel) {
       this.openChannel = openChannel;
@@ -78,11 +77,30 @@ class OpenChannelPageState extends State<OpenChannelPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            title,
-            maxLines: 2,
+          centerTitle: true,
+          title: Text(title),
+          leadingWidth: 40,
+          leading: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+            child: GestureDetector(
+              onTap: () => Get.back(),
+              child: SvgPicture.asset(
+                Get.isDarkMode ? 'assets/icons/back.svg' : 'assets/icons/back_dark.svg',
+                height: 40,
+                width: 40,
+              ),
+            ),
           ),
-          actions: const [],
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+              child: SvgPicture.asset(
+                Get.isDarkMode ? 'assets/icons/menu.svg' : 'assets/icons/menu_dark.svg',
+                height: 40,
+                width: 40,
+              ),
+            ),
+          ],
         ),
         body: Column(
           children: [
@@ -140,27 +158,6 @@ class OpenChannelPageState extends State<OpenChannelPage> {
         BaseMessage message = messageList[index];
 
         return GestureDetector(
-          onDoubleTap: () async {
-            // final openChannel = await OpenChannel.getChannel(channelUrl);
-            // Get.toNamed('/message/update/${openChannel.channelType.toString()}/${openChannel.channelUrl}/${message.messageId}')?.then((message) async {
-            //   if (message != null) {
-            //     for (int index = 0; index < messageList.length; index++) {
-            //       if (messageList[index].messageId == message.messageId) {
-            //         setState(() => messageList[index] = message);
-            //         break;
-            //       }
-            //     }
-            //   }
-            // });
-          },
-          onLongPress: () async {
-            // final openChannel = await OpenChannel.getChannel(channelUrl);
-            // await openChannel.deleteMessage(message.messageId);
-            // setState(() {
-            //   messageList.remove(message);
-            //   title = '${openChannel.name} (${messageList.length})';
-            // });
-          },
           child: Column(
             children: [
               (message.sender?.userId != SendbirdChat.currentUser?.userId)
@@ -191,10 +188,7 @@ class OpenChannelPageState extends State<OpenChannelPage> {
         children: [
           InkWell(
             onTap: () {},
-            child: SvgPicture.asset(
-              Get.isDarkMode ? 'assets/icons/plus.svg' : 'assets/icons/plus_dark.svg',
-              colorFilter: ColorFilter.mode(Get.isDarkMode ? CustomTheme.dark0 : CustomTheme.dark4, BlendMode.dstIn),
-            ),
+            child: SvgPicture.asset(Get.isDarkMode ? 'assets/icons/plus.svg' : 'assets/icons/plus_dark.svg'),
           ),
           Expanded(
             child: InputMessage(
@@ -229,38 +223,38 @@ class OpenChannelPageState extends State<OpenChannelPage> {
 
   Future<void> _showDialogToResendUserMessage(UserMessage message) async {
     await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return AlertDialog(
-            content: Text('Resend: ${message.message}'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  openChannel?.resendUserMessage(
-                    message,
-                    handler: (message, e) async {
-                      if (e != null) {
-                        await _showDialogToResendUserMessage(message);
-                      } else {
-                        _addMessage(message);
-                      }
-                    },
-                  );
-
-                  Get.back();
-                },
-                child: const Text('Yes'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Get.back();
-                },
-                child: const Text('No'),
-              ),
-            ],
-          );
-        });
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          content: Text('Resend: ${message.message}'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                openChannel?.resendUserMessage(
+                  message,
+                  handler: (message, e) async {
+                    if (e != null) {
+                      await _showDialogToResendUserMessage(message);
+                    } else {
+                      _addMessage(message);
+                    }
+                  },
+                );
+                Get.back();
+              },
+              child: const Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: const Text('No'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _addMessage(BaseMessage message) {
@@ -340,7 +334,6 @@ class MyOpenChannelHandler extends OpenChannelHandler {
 
   @override
   void onMessageReceived(BaseChannel channel, BaseMessage message) {
-    debugPrint('MESSAGE: ${message.toJson()}');
     _state._addMessage(message);
   }
 

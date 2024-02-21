@@ -7,14 +7,12 @@ class InputMessage extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
   final Function()? onSend;
-  final bool enable;
 
   const InputMessage(
     this.controller, {
     super.key,
     this.focusNode,
     this.onSend,
-    this.enable = true,
   });
 
   @override
@@ -33,6 +31,10 @@ class InputMessageState extends State<InputMessage> {
           decoration: InputDecoration(
             fillColor: Get.isDarkMode ? CustomTheme.dark5 : CustomTheme.white,
             filled: true,
+            hintText: widget.controller.text.isEmpty ? '메세지 보내기' : null,
+            hintStyle: TextStyle(
+              color: CustomTheme.typingDisabled,
+            ),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Get.isDarkMode ? CustomTheme.dark4 : CustomTheme.dark1),
               borderRadius: BorderRadius.all(Radius.circular(_borderRadius)),
@@ -64,7 +66,7 @@ class InputMessageState extends State<InputMessage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: SvgPicture.asset(
-                  widget.enable ? 'assets/icons/chat_send.svg' : 'assets/icons/chat_send_disabled.svg',
+                  widget.controller.text.isEmpty ? 'assets/icons/chat_send_disabled.svg' : 'assets/icons/chat_send.svg',
                 ),
               ),
             ),
