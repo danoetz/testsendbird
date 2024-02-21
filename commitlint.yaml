@@ -6,6 +6,20 @@ rules:
     - 2
     - always
     - 'camel-case'
+  type-enum:  
+    - 2  
+    - always  
+    - - chore  
+      - ci  
+      - docs  
+      - feat  
+      - fix  
+      - perf  
+      - refactor  
+      - style
+  scope-enum:  
+    - 0
+    - never
 
 # Whether commitlint uses the default ignore rules.
 defaultIgnores: true
