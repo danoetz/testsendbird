@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:testsendbird/sendbird_service.dart';
 import 'package:testsendbird/utils/app_prefs.dart';
+import 'package:testsendbird/views/home/home_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,6 +12,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final HomeController _controller = Get.put(HomeController());
+
   String testingOpenChannelUrl = '';
 
   @override
@@ -19,8 +22,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          Obx(() {
+            return Switch.adaptive(
+                value: (_controller.currentTheme.value == ThemeMode.dark),
+                onChanged: (v) {
+                  _controller.switchTheme();
+                  Get.changeThemeMode(_controller.currentTheme.value);
+                });
+          }),
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -7,15 +7,19 @@ environment:
   sdk: ">=3.2.0 <4.0.0"
 
 dependencies:
+  chat_bubbles: ^1.6.0
   flutter:
     sdk: flutter
 
+  flutter_svg: ^2.0.9
   fluttertoast: ^8.2.4
+  font_awesome_flutter: ^10.7.0
   get: ^4.6.6
   scrollable_positioned_list: ^0.3.8
   sendbird_chat_sdk: ^4.2.2
   sendbird_chat_widget: ^1.0.4
   shared_preferences: ^2.2.2
+  timeago: ^3.6.1
 
 dev_dependencies:
   flutter_test:
@@ -30,3 +34,15 @@ lint_staged:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/icons/
+
+  fonts:
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/Pretendard-Regular.otf
+        - asset: assets/fonts/Pretendard-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Pretendard-Bold.otf
+          weight: 700

@@ -1,12 +1,13 @@
-// Copyright (c) 2023 Sendbird, Inc. All rights reserved.
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sendbird_chat_sdk/sendbird_chat_sdk.dart';
-import 'package:testsendbird/views/widgets/widgets.dart';
+import 'package:testsendbird/utils/theme.dart';
+import 'package:testsendbird/views/chat/widgets/chat_bubble.dart';
+import 'package:testsendbird/views/chat/widgets/input_message.dart';
 
 class OpenChannelPage extends StatefulWidget {
   const OpenChannelPage({super.key});
@@ -51,7 +52,7 @@ class OpenChannelPageState extends State<OpenChannelPage> {
             messageList
               ..clear()
               ..addAll(messages);
-            title = '${openChannel.name} (${messageList.length})';
+            title = openChannel.name;
             hasPrevious = query.hasNext;
             participantCount = openChannel.participantCount;
           });
@@ -71,40 +72,32 @@ class OpenChannelPageState extends State<OpenChannelPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Widgets.pageTitle(title, maxLines: 2),
-        actions: const [],
-      ),
-      body: Column(
-        children: [
-          participantCount != null ? _participantIdBox() : Container(),
-          hasPrevious ? _previousButton() : Container(),
-          Expanded(child: messageList.isNotEmpty ? _list() : Container()),
-          _messageSender(),
-        ],
-      ),
-    );
-  }
-
-  Widget _participantIdBox() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              const Icon(Icons.person, size: 16.0),
-              Text(
-                participantCount.toString(),
-                textAlign: TextAlign.left,
-                style: const TextStyle(fontSize: 12.0, color: Colors.green),
-              ),
-            ],
+    return GestureDetector(
+      onTap: () {
+        Get.focusScope?.unfocus();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            title,
+            maxLines: 2,
           ),
+          actions: const [],
         ),
-        const Divider(height: 1),
-      ],
+        body: Column(
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  messageList.isNotEmpty ? _list() : Container(),
+                  hasPrevious ? _previousButton() : Container(),
+                ],
+              ),
+            ),
+            _messageSender(),
+          ],
+        ),
+      ),
     );
   }
 
@@ -112,10 +105,11 @@ class OpenChannelPageState extends State<OpenChannelPage> {
     return Container(
       width: double.maxFinite,
       height: 32.0,
-      color: Colors.purple[200],
+      color: CustomTheme.bgChatReciver.withOpacity(0.3),
       child: IconButton(
         icon: const Icon(Icons.expand_less, size: 16.0),
         color: Colors.white,
+        style: IconButton.styleFrom(shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
         onPressed: () async {
           if (query.hasNext && !query.isLoading) {
             final messages = await query.next();
@@ -133,7 +127,9 @@ class OpenChannelPageState extends State<OpenChannelPage> {
   }
 
   Widget _list() {
-    return ScrollablePositionedList.builder(
+    return ScrollablePositionedList.separated(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      separatorBuilder: (context, i) => const SizedBox(height: 10),
       physics: const ClampingScrollPhysics(),
       initialScrollIndex: messageList.length - 1,
       itemScrollController: itemScrollController,
@@ -145,63 +141,41 @@ class OpenChannelPageState extends State<OpenChannelPage> {
 
         return GestureDetector(
           onDoubleTap: () async {
-            final openChannel = await OpenChannel.getChannel(channelUrl);
-            Get.toNamed(
-                    '/message/update/${openChannel.channelType.toString()}/${openChannel.channelUrl}/${message.messageId}')
-                ?.then((message) async {
-              if (message != null) {
-                for (int index = 0; index < messageList.length; index++) {
-                  if (messageList[index].messageId == message.messageId) {
-                    setState(() => messageList[index] = message);
-                    break;
-                  }
-                }
-              }
-            });
+            // final openChannel = await OpenChannel.getChannel(channelUrl);
+            // Get.toNamed('/message/update/${openChannel.channelType.toString()}/${openChannel.channelUrl}/${message.messageId}')?.then((message) async {
+            //   if (message != null) {
+            //     for (int index = 0; index < messageList.length; index++) {
+            //       if (messageList[index].messageId == message.messageId) {
+            //         setState(() => messageList[index] = message);
+            //         break;
+            //       }
+            //     }
+            //   }
+            // });
           },
           onLongPress: () async {
-            final openChannel = await OpenChannel.getChannel(channelUrl);
-            await openChannel.deleteMessage(message.messageId);
-            setState(() {
-              messageList.remove(message);
-              title = '${openChannel.name} (${messageList.length})';
-            });
+            // final openChannel = await OpenChannel.getChannel(channelUrl);
+            // await openChannel.deleteMessage(message.messageId);
+            // setState(() {
+            //   messageList.remove(message);
+            //   title = '${openChannel.name} (${messageList.length})';
+            // });
           },
           child: Column(
             children: [
-              ListTile(
-                title: Text(
-                  message.message,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                subtitle: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Widgets.imageNetwork(message.sender?.profileUrl, 16.0, Icons.account_circle),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 4.0),
-                        child: Text(
-                          message.sender?.userId ?? '',
-                          style: const TextStyle(fontSize: 12.0),
-                        ),
-                      ),
+              (message.sender?.userId != SendbirdChat.currentUser?.userId)
+                  ? BubbleReceiver(
+                      userName: message.sender?.userId,
+                      onlineStatus: message.sender?.isActive ?? false,
+                      message: message.message,
+                      createdAt: message.createdAt,
+                      avatarUrl: message.sender?.profileUrl ?? '',
+                    )
+                  : BubbleSender(
+                      userName: message.sender?.userId,
+                      onlineStatus: message.sender?.isActive ?? false,
+                      message: message.message,
                     ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 16),
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        DateTime.fromMillisecondsSinceEpoch(message.createdAt).toString(),
-                        style: const TextStyle(fontSize: 12.0),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
             ],
           ),
         );
@@ -210,37 +184,44 @@ class OpenChannelPageState extends State<OpenChannelPage> {
   }
 
   Widget _messageSender() {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(8.0),
+      color: Get.isDarkMode ? CustomTheme.dark6 : CustomTheme.white,
       child: Row(
         children: [
+          InkWell(
+            onTap: () {},
+            child: SvgPicture.asset(
+              Get.isDarkMode ? 'assets/icons/plus.svg' : 'assets/icons/plus_dark.svg',
+              colorFilter: ColorFilter.mode(Get.isDarkMode ? CustomTheme.dark0 : CustomTheme.dark4, BlendMode.dstIn),
+            ),
+          ),
           Expanded(
-            child: Widgets.textField(textEditingController, 'Message'),
+            child: InputMessage(
+              textEditingController,
+              onSend: () {
+                if (textEditingController.value.text.isEmpty) {
+                  return;
+                }
+
+                openChannel?.sendUserMessage(
+                  UserMessageCreateParams(
+                    message: textEditingController.value.text,
+                  ),
+                  handler: (UserMessage message, SendbirdException? e) async {
+                    if (e != null) {
+                      await _showDialogToResendUserMessage(message);
+                    } else {
+                      _addMessage(message);
+                    }
+                  },
+                );
+
+                textEditingController.clear();
+              },
+            ),
           ),
           const SizedBox(width: 8.0),
-          ElevatedButton(
-            onPressed: () async {
-              if (textEditingController.value.text.isEmpty) {
-                return;
-              }
-
-              openChannel?.sendUserMessage(
-                UserMessageCreateParams(
-                  message: textEditingController.value.text,
-                ),
-                handler: (UserMessage message, SendbirdException? e) async {
-                  if (e != null) {
-                    await _showDialogToResendUserMessage(message);
-                  } else {
-                    _addMessage(message);
-                  }
-                },
-              );
-
-              textEditingController.clear();
-            },
-            child: const Text('Send'),
-          ),
         ],
       ),
     );
@@ -359,6 +340,7 @@ class MyOpenChannelHandler extends OpenChannelHandler {
 
   @override
   void onMessageReceived(BaseChannel channel, BaseMessage message) {
+    debugPrint('MESSAGE: ${message.toJson()}');
     _state._addMessage(message);
   }
 

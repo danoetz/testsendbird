@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AppPrefs {
   static const String prefNewOpenChannelUrl = 'prefNewOpenChannelUrl';
+  static const String prefDarkMode = 'prefDarkMode';
 
   AppPrefs._();
 
@@ -23,5 +24,13 @@ class AppPrefs {
 
   String? getNewOpenChannel() {
     return prefs.getString(prefNewOpenChannelUrl);
+  }
+
+  Future<bool> setDarkMode(bool value) async {
+    return await prefs.setBool(prefDarkMode, value);
+  }
+
+  bool isDarkMode() {
+    return prefs.getBool(prefDarkMode) ?? false;
   }
 }

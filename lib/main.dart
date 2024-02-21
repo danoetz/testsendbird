@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:testsendbird/routes.dart';
 import 'package:testsendbird/utils/app_prefs.dart';
+import 'package:testsendbird/utils/theme.dart';
 
 void main() {
   runZonedGuarded<Future<void>>(
@@ -42,6 +43,9 @@ class MainApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'TestSendbird',
+      theme: CustomTheme.lightTheme,
+      darkTheme: CustomTheme.darkTheme,
+      themeMode: ThemeMode.system,
       initialRoute: '/',
       getPages: routes,
     );

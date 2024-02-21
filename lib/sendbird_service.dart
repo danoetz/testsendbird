@@ -8,8 +8,7 @@ class SendbirdService extends OpenChannelHandler {
   static OpenChannel? openChannel;
 
   static String appId = 'BC823AD1-FBEA-4F08-8F41-CF0D9D280FBF';
-  // static String openChannelUrl = 'sendbird_open_channel_14092_bf4075fbb8f12dc0df3ccc5c653f027186ac9211';
-  static String openChannelUrl = 'sendbird_open_channel_14092_bb0ad6f134c05777a067d78949811264a20de770';
+  static String openChannelUrl = 'sendbird_open_channel_14092_bf4075fbb8f12dc0df3ccc5c653f027186ac9211';
   static String apiUrl = 'https://api-BC823AD1-FBEA-4F08-8F41-CF0D9D280FBF.sendbird.com';
   static String apiToken = 'f93b05ff359245af400aa805bafd2a091a173064';
 
@@ -19,9 +18,8 @@ class SendbirdService extends OpenChannelHandler {
 
   static Future<User?> connectToServer({required String userId}) async {
     try {
-      await SendbirdChat.init(appId: appId);
+      await init();
 
-      // if (status) {
       final loginUserId = await UserPrefs.getLoginUserId();
       debugPrint('loginUserId: $loginUserId');
 
@@ -33,11 +31,6 @@ class SendbirdService extends OpenChannelHandler {
       debugPrint('USER: ${user.toJson()}');
       await UserPrefs.setLoginUserId();
       return user;
-
-      // The user is connected to the Sendbird server.
-      // } else {
-      //   // showToast('STATUS: Not connected!');
-      // }
     } catch (e) {
       showToast(e.toString());
     }
@@ -74,32 +67,6 @@ class SendbirdService extends OpenChannelHandler {
     }
     return null;
   }
-
-  static void enterOpenChannel() async {
-    try {
-      final openChannel = await OpenChannel.getChannel(openChannelUrl);
-      await openChannel.enter();
-    } catch (e) {
-      showToast(e.toString());
-    }
-    return null;
-  }
-
-  // static sendMessageToChannel({required OpenChannel openChannel, required String message}) async {
-  //   try {
-  //     final params = UserMessageCreateParams(message: message);
-  //     // ..data = DATA
-  //     // ..customType = CUSTOM_TYPE;
-
-  //     final msg = openChannel.sendUserMessage(params, handler: (message, e) {
-  //       // The message is successfully sent to the channel.
-  //       // The current user can receive messages from other users
-  //       // through the onMessageReceived() method in event handlers.
-  //     });
-  //   } catch (e) {
-  //     showToast(e.toString());
-  //   }
-  // }
 
   @override
   void onMessageReceived(BaseChannel channel, BaseMessage message) {
